@@ -9,6 +9,8 @@ const {
   select,
   option,
   div,
+  input,
+  label,
   style,
 } = require("@saltcorn/markup/tags");
 const View = require("@saltcorn/data/models/view");
@@ -171,32 +173,19 @@ const run = async (
   );
 
   const selected = new Set(rows[0]._selected || []);
-  return (
-    div(possibles.map((p) => option({ selected: selected.has(p) }, p))),
-    select(
-      { id: rndid, multiple: "multiple" },
-      possibles.map((p) => option({ selected: selected.has(p) }, p))
-    ) +
-      script(
-        domReady(
-          `$('#${rndid}').select2({ 
-            width: '100%', 
-            dropdownParent: $('#${rndid}').parent(), 
-            dropdownCssClass: "select2-dd-${rndid}"
-        });
-        $('#${rndid}').on('select2:unselect', function (e) {
-            view_post('${viewname}', 'remove', {id:'${id}', value: e.params.data.id});
-        });
-        $('#${rndid}').on('select2:select', function (e) {
-            view_post('${viewname}', 'add', {id:'${id}', value: e.params.data.id});
-        });`
-        )
-      ) +
-      (maxHeight
-        ? style(
-            `.select2-container--default .select2-dd-${rndid} .select2-results>.select2-results__options {max-height: ${maxHeight}px;}`
-          )
-        : "")
+  return div(
+    possibles.map((p) =>
+      div(
+        { class: "form-check" },
+        input({
+          class: "form-check-input",
+          type: "checkbox",
+          onchange: `view_post('${viewname}', this.checked ? 'add': 'remove', {id:'${id}', value: '${p}'})`,
+          checked: selected.has(p),
+        }),
+        label({ class: "form-check-label" }, p)
+      )
+    )
   );
 };
 
