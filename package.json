@@ -1,0 +1,28 @@
+{
+  "name": "@saltcorn/many-to-many",
+  "version": "0.2.0",
+  "description": "Tools for many-to-many relationships",
+  "main": "index.js",
+  "dependencies": {
+    "@saltcorn/data": "^0.6.0",
+    "@saltcorn/markup": "^0.6.0"
+  },
+  "author": "Tom Nielsen",
+  "license": "MIT",
+  "eslintConfig": {
+    "extends": "eslint:recommended",
+    "parserOptions": {
+      "ecmaVersion": 2020
+    },
+    "env": {
+      "node": true,
+      "es6": true
+    },
+    "rules": {
+      "no-unused-vars": "off",
+      "no-case-declarations": "off",
+      "no-empty": "warn",
+      "no-fallthrough": "warn"
+    }
+  }
+}
