@@ -6,6 +6,7 @@ const {
   script,
   domReady,
   di,
+  h3,
   select,
   option,
   div,
@@ -89,6 +90,13 @@ const configuration_workflow = () =>
                 class: "validate-expression",
               },
               {
+                name: "groupby",
+                label: "Group by",
+                type: "String",
+                sublabel: "Formula",
+                class: "validate-expression",
+              },
+              {
                 name: "field_values_formula",
                 label: "Row values formula",
                 class: "validate-expression",
@@ -114,7 +122,7 @@ const get_state_fields = async (table_id, viewname, { columns }) => [
 const run = async (
   table_id,
   viewname,
-  { relation, maxHeight, where },
+  { relation, maxHeight, where, groupby },
   state,
   extra
 ) => {
@@ -161,32 +169,54 @@ const run = async (
   });
   if (!rows[0]) return "No row selected";
 
-  const possibles = await joinedTable.distinctValues(
-    valField,
-    where
-      ? jsexprToWhere(
-          where,
-          { ...rows[0], user: req.user },
-          joinedTable.getFields()
-        )
-      : undefined
-  );
-
   const selected = new Set(rows[0]._selected || []);
-  return div(
-    possibles.map((p) =>
-      div(
-        { class: "form-check" },
-        input({
-          class: "form-check-input",
-          type: "checkbox",
-          onchange: `view_post('${viewname}', this.checked ? 'add': 'remove', {id:'${id}', value: '${p}'})`,
-          checked: selected.has(p),
-        }),
-        label({ class: "form-check-label" }, p)
+  const checkbox = (p) =>
+    div(
+      { class: "form-check" },
+      input({
+        class: "form-check-input",
+        type: "checkbox",
+        onchange: `view_post('${viewname}', this.checked ? 'add': 'remove', {id:'${id}', value: '${p}'})`,
+        checked: selected.has(p),
+      }),
+      label({ class: "form-check-label" }, p)
+    );
+
+  if (!groupby) {
+    const possibles = await joinedTable.distinctValues(
+      valField,
+      where
+        ? jsexprToWhere(
+            where,
+            { ...rows[0], user: req.user },
+            joinedTable.getFields()
+          )
+        : undefined
+    );
+
+    return div(possibles.map(checkbox));
+  } else {
+    const allRows = await joinedTable.getRows(
+      where
+        ? jsexprToWhere(
+            where,
+            { ...rows[0], user: req.user },
+            joinedTable.getFields()
+          )
+        : {}
+    );
+    const groups = {};
+    for (const row of allRows) {
+      const group = eval_expression(groupby, row);
+      if (!groups[group]) groups[group] = [];
+      groups[group].push(row[valField]);
+    }
+    return div(
+      Object.entries(groups).map(([group, vals]) =>
+        div(h3(group), vals.map(checkbox))
       )
-    )
-  );
+    );
+  }
 };
 
 const remove = async (table_id, viewname, { relation }, { id, value }) => {
