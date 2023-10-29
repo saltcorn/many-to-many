@@ -22,11 +22,13 @@ const Field = require("@saltcorn/data/models/field");
 const {
   jsexprToWhere,
   eval_expression,
+  freeVariables,
 } = require("@saltcorn/data/models/expression");
 
 const db = require("@saltcorn/data/db");
 const {
   stateFieldsToWhere,
+  add_free_variables_to_joinfields,
   picked_fields_to_query,
 } = require("@saltcorn/data/plugin-helper");
 const { features } = require("@saltcorn/data/db/state");
@@ -196,15 +198,23 @@ const run = async (
 
     return div(possibles.map(checkbox));
   } else {
-    const allRows = await joinedTable.getRows(
-      where
+    const joinFields = {};
+    add_free_variables_to_joinfields(
+      freeVariables(groupby),
+      joinFields,
+      joinedTable.fields
+    );
+
+    const allRows = await joinedTable.getJoinedRows({
+      joinFields,
+      where: where
         ? jsexprToWhere(
             where,
             { ...rows[0], user: req.user },
             joinedTable.getFields()
           )
-        : {}
-    );
+        : {},
+    });
     const groups = {};
     for (const row of allRows) {
       const group = eval_expression(groupby, row);
