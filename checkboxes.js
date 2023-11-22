@@ -222,9 +222,11 @@ const run = async (
       groups[group].push(row[valField]);
     }
     return div(
-      Object.entries(groups).map(([group, vals]) =>
-        div(h3(group), vals.map(checkbox))
-      )
+      Object.entries(groups).map(([group, vals]) => {
+        vals.sort((a, b) => (a.toLowerCase() > b.toLowerCase() ? 1 : -1));
+
+        return div(h3(group), vals.map(checkbox));
+      })
     );
   }
 };
