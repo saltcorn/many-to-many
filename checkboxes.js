@@ -223,7 +223,7 @@ const run = async (
     }
     return div(
       Object.entries(groups).map(([group, vals]) => {
-        vals.sort((a, b) => (a.toLowerCase() > b.toLowerCase() ? 1 : -1));
+        vals.sort((a, b) => (a?.toLowerCase?.() > b?.toLowerCase?.() ? 1 : -1));
 
         return div(h3(group), vals.map(checkbox));
       })
