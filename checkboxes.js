@@ -289,4 +289,5 @@ module.exports = {
   configuration_workflow,
   run,
   routes: { remove, add },
+  mobile_render_server_side: true,
 };
