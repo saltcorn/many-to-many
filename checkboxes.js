@@ -290,4 +290,10 @@ module.exports = {
   run,
   routes: { remove, add },
   mobile_render_server_side: true,
+  enable_copilot_viewgen: true,
+  description:
+    "Renders checkboxes for a many-to-many association via a join table. " +
+    "The view's underlying table is the parent ('one') side. " +
+    "Requires a 'relation' config string: join_table.parent_fk.join_fk.label_field. " +
+    "Must receive the parent row id in state (embed with state:'shared' inside a Show view).",
 };
